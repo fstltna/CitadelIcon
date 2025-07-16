@@ -1,12 +1,50 @@
 #!/usr/bin/perl
+use strict;
+use warnings;
+
 my $VERSION = "1.0";
 my $IconDir = "/usr/local/webcit/static";
-my $IconBarFile = "t/iconbar.html";
-my $IconFile = "foo.png";
+my $IconBarFile = "$IconDir/t/iconbar.html";
+my $OldIcon = "citadel-logo.gif";
+my $IconFile = $ARGV[0];
+my $num_args = scalar @ARGV;
 
 print "citicon v$VERSION\n";
 print "===============\n";
+if ($num_args == 0)
+{
+	print "You must specify the icon file\n";
+	exit 1;
+}
+
+if (! -f $IconFile)
+{
+	print "Invalid file: $IconFile\n";
+	exit 1;
+}
+
 print "Copying $IconFile to $IconDir: ";
 system("cp $IconFile $IconDir");
+print "Done\n";
+
+print "Editing file \"$IconBarFile\": ";
+
+open(my $fh_in, '<', $IconBarFile) or die "Cannot open $IconBarFile for reading: $!";
+open(my $fh_out, '>', "$IconBarFile.tmp") or die "Cannot open $IconBarFile.tmp for writing: $!";
+
+while (my $line = <$fh_in>)
+{
+	$line =~ s/$OldIcon/$IconFile/g;
+	print $fh_out $line;
+}
+close $fh_in;
+close $fh_out;
+
+rename("$IconBarFile.tmp", $IconBarFile) or die "Cannot rename $IconBarFile.tmp to $IconBarFile: $!";
+print "Done\n";
+
+print "Restarting webcit: ";
+system("service webcit-http restart");
+system("service webcit-https restart");
 print "Done\n";
 exit 0;
