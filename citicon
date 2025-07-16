@@ -1,0 +1,12 @@
+#!/usr/bin/perl
+my $VERSION = "1.0";
+my $IconDir = "/usr/local/webcit/static";
+my $IconBarFile = "t/iconbar.html";
+my $IconFile = "foo.png";
+
+print "citicon v$VERSION\n";
+print "===============\n";
+print "Copying $IconFile to $IconDir: ";
+system("cp $IconFile $IconDir");
+print "Done\n";
+exit 0;
